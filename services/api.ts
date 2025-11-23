@@ -47,6 +47,10 @@ class ApiService {
     return this.request<User>('/users/me');
   }
 
+  async getUser(id: string) {
+    return this.request<User>(`/users/${id}`);
+  }
+
   async updateUser(userData: Partial<User>) {
     return this.request<User>('/users/profile', {
       method: 'PUT',
