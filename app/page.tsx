@@ -1,474 +1,6 @@
-// "use client"
-
-// import { useEffect, useState, useMemo } from "react"
-// import { Sidebar } from "@/components/sidebar"
-// import { ChatArea } from "@/components/chat-area"
-// import { ProfileModal } from "@/components/profile-modal"
-// import { useRouter } from "next/navigation"
-
-// export type UserType = "USER" | "MANAGER" | "ADMIN"
-// export type UserStatus = "online" | "away" | "busy" | "offline"
-
-// export interface User {
-//   name: string
-//   email: string
-//   type: UserType
-//   status: UserStatus
-//   avatar: string
-// }
-
-// export interface Conversation {
-//   id: string
-//   name: string
-//   avatar: string
-//   avatarColor: string
-//   lastMessage: string
-//   time: string
-//   unreadCount?: number
-//   isGroup?: boolean
-//   isOnline?: boolean
-// }
-
-// export interface Message {
-//   id: string
-//   text: string
-//   sender: string
-//   time: string
-//   isSent: boolean
-// }
-
-// export interface Contact {
-//   id: string
-//   name: string
-//   email: string
-//   avatar: string
-//   avatarColor: string
-//   status: UserStatus
-//   type: UserType
-// }
-
-// // Nova interface para membros do grupo com role
-// export interface GroupMember extends Contact {
-//   role: "USER" | "ADMIN"
-// }
-
-// export default function Home() {
-//   const router = useRouter();
-
-//   useEffect(() => {
-//     const token = localStorage.getItem("token");
-//     if (!token) {
-//       router.push("/login");
-//     }
-//   }, [router]);
-
-//   const [isDarkMode, setIsDarkMode] = useState(false)
-//   const [activeTab, setActiveTab] = useState<"chats" | "groups">("chats")
-//   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
-//   const [isNewConversationMode, setIsNewConversationMode] = useState(false)
-//   const [isNewGroupMode, setIsNewGroupMode] = useState(false) // Novo estado para modo grupo
-//   const [newGroupStep, setNewGroupStep] = useState<1 | 2>(1) // Etapa atual do novo grupo
-//   const [selectedContacts, setSelectedContacts] = useState<Contact[]>([]) // Contatos selecionados
-//   const [groupMembers, setGroupMembers] = useState<GroupMember[]>([]) // Membros com roles
-//   const [groupName, setGroupName] = useState("") // Nome do grupo
-
-//   const [user, setUser] = useState<User>({
-//     name: "João Silva",
-//     email: "joao.silva@empresa.com",
-//     type: "MANAGER",
-//     status: "online",
-//     avatar: "JS",
-//   })
-
-//   // Lista de contatos disponíveis
-//   const availableContacts: Contact[] = [
-//     {
-//       id: "c1",
-//       name: "Ana Souza",
-//       email: "ana.souza@empresa.com",
-//       avatar: "AS",
-//       avatarColor: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
-//       status: "online",
-//       type: "USER"
-//     },
-//     {
-//       id: "c2",
-//       name: "Carlos Lima",
-//       email: "carlos.lima@empresa.com",
-//       avatar: "CL",
-//       avatarColor: "linear-gradient(135deg, #f59e0b, #fbbf24)",
-//       status: "away",
-//       type: "MANAGER"
-//     },
-//     {
-//       id: "c3",
-//       name: "Mariana Costa",
-//       email: "mariana.costa@empresa.com",
-//       avatar: "MC",
-//       avatarColor: "linear-gradient(135deg, #ec4899, #f472b6)",
-//       status: "online",
-//       type: "USER"
-//     },
-//     {
-//       id: "c4",
-//       name: "Roberto Alves",
-//       email: "roberto.alves@empresa.com",
-//       avatar: "RA",
-//       avatarColor: "linear-gradient(135deg, #10b981, #34d399)",
-//       status: "busy",
-//       type: "ADMIN"
-//     },
-//     {
-//       id: "c5",
-//       name: "Fernanda Oliveira",
-//       email: "fernanda.oliveira@empresa.com",
-//       avatar: "FO",
-//       avatarColor: "linear-gradient(135deg, #ef4444, #f87171)",
-//       status: "offline",
-//       type: "USER"
-//     },
-//   ]
-
-//   // Todas as conversas disponíveis
-//   const [allConversations, setAllConversations] = useState<Conversation[]>([
-//     {
-//       id: "1",
-//       name: "Maria Costa",
-//       avatar: "MC",
-//       avatarColor: "linear-gradient(135deg, #10b981, #34d399)",
-//       lastMessage: "Precisamos finalizar o relatório até sexta...",
-//       time: "10:45",
-//       unreadCount: 3,
-//       isOnline: true,
-//       isGroup: false,
-//     },
-//     {
-//       id: "2",
-//       name: "Projeto Alpha",
-//       avatar: "PA",
-//       avatarColor: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
-//       lastMessage: "Carlos: A reunião foi adiada para amanhã",
-//       time: "09:30",
-//       unreadCount: 12,
-//       isGroup: true,
-//     },
-//     {
-//       id: "3",
-//       name: "Pedro Fernandes",
-//       avatar: "PF",
-//       avatarColor: "linear-gradient(135deg, #f59e0b, #fbbf24)",
-//       lastMessage: "Obrigado pela ajuda no projeto!",
-//       time: "Ontem",
-//       isGroup: false,
-//     },
-//     {
-//       id: "4",
-//       name: "Marketing Digital",
-//       avatar: "MD",
-//       avatarColor: "linear-gradient(135deg, #ec4899, #f472b6)",
-//       lastMessage: "Ana: Novo briefing disponível",
-//       time: "Ontem",
-//       isGroup: true,
-//     },
-//     {
-//       id: "5",
-//       name: "Carlos Santos",
-//       avatar: "CS",
-//       avatarColor: "linear-gradient(135deg, #ef4444, #f87171)",
-//       lastMessage: "Enviei o documento atualizado",
-//       time: "Seg",
-//       isGroup: false,
-//     },
-//     {
-//       id: "6",
-//       name: "Lançamento Técnico",
-//       avatar: "LT",
-//       avatarColor: "linear-gradient(135deg, #06b6d4, #22d3ee)",
-//       lastMessage: "Você: Vamos precisar de mais testes",
-//       time: "Sáb",
-//       isGroup: true,
-//     },
-//   ])
-
-//   // Filtra as conversas baseado na tab ativa
-//   const filteredConversations = useMemo(() => {
-//     return allConversations.filter(conversation => 
-//       activeTab === "chats" 
-//         ? !conversation.isGroup
-//         : conversation.isGroup
-//     )
-//   }, [activeTab, allConversations])
-
-//   // Define a conversa ativa inicial
-//   const [activeConversation, setActiveConversation] = useState<Conversation>(() => 
-//     filteredConversations[0] || allConversations[0]
-//   )
-
-//   // Atualiza a conversa ativa quando o filtro muda
-//   useEffect(() => {
-//     if (!filteredConversations.find(conv => conv.id === activeConversation.id)) {
-//       setActiveConversation(filteredConversations[0] || allConversations[0])
-//     }
-//   }, [filteredConversations, activeConversation.id])
-
-//   const handleTabChange = (tab: "chats" | "groups") => {
-//     setActiveTab(tab)
-//   }
-
-//   const handleConversationSelect = (conversation: Conversation) => {
-//     setActiveConversation(conversation)
-//   }
-
-//   // Função para iniciar nova conversa
-//   const handleNewConversation = () => {
-//     setIsNewConversationMode(true)
-//     setIsNewGroupMode(false)
-//   }
-
-//   // Função para selecionar um contato e criar nova conversa
-//   const handleContactSelect = (contact: Contact) => {
-//     const existingConversation = allConversations.find(
-//       conv => !conv.isGroup && conv.name === contact.name
-//     )
-
-//     if (existingConversation) {
-//       setActiveConversation(existingConversation)
-//     } else {
-//       const newConversation: Conversation = {
-//         id: `new-${Date.now()}`,
-//         name: contact.name,
-//         avatar: contact.avatar,
-//         avatarColor: contact.avatarColor,
-//         lastMessage: "Conversa iniciada",
-//         time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-//         isGroup: false,
-//         isOnline: contact.status === "online",
-//       }
-
-//       setAllConversations(prev => [newConversation, ...prev])
-//       setActiveConversation(newConversation)
-//     }
-
-//     setIsNewConversationMode(false)
-//   }
-
-//   // Função para cancelar modo nova conversa
-//   const handleCancelNewConversation = () => {
-//     setIsNewConversationMode(false)
-//   }
-
-//   // Funções para Novo Grupo
-//   const handleNewGroup = () => {
-//     setIsNewGroupMode(true)
-//     setIsNewConversationMode(false)
-//     setNewGroupStep(1)
-//     setSelectedContacts([])
-//     setGroupMembers([])
-//     setGroupName("")
-//   }
-
-//   const handleCancelNewGroup = () => {
-//     setIsNewGroupMode(false)
-//     setNewGroupStep(1)
-//     setSelectedContacts([])
-//     setGroupMembers([])
-//     setGroupName("")
-//   }
-
-//   const handleToggleContactSelection = (contact: Contact) => {
-//     setSelectedContacts(prev => {
-//       const isSelected = prev.find(c => c.id === contact.id)
-//       if (isSelected) {
-//         return prev.filter(c => c.id !== contact.id)
-//       } else {
-//         return [...prev, contact]
-//       }
-//     })
-//   }
-
-//   const handleNextStep = () => {
-//     if (selectedContacts.length > 0) {
-//       // Converte os contatos selecionados para GroupMember com role padrão "USER"
-//       const members: GroupMember[] = selectedContacts.map(contact => ({
-//         ...contact,
-//         role: "USER" as const
-//       }))
-//       setGroupMembers(members)
-//       setNewGroupStep(2)
-//     }
-//   }
-
-//   const handlePrevStep = () => {
-//     setNewGroupStep(1)
-//   }
-
-//   const handleRoleChange = (contactId: string, newRole: "USER" | "ADMIN") => {
-//     setGroupMembers(prev =>
-//       prev.map(member =>
-//         member.id === contactId ? { ...member, role: newRole } : member
-//       )
-//     )
-//   }
-
-//   const handleCreateGroup = () => {
-//     if (!groupName.trim() || groupMembers.length === 0) return
-
-//     const newGroupConversation: Conversation = {
-//       id: `group-${Date.now()}`,
-//       name: groupName,
-//       avatar: groupName.split(' ').map(word => word[0]).join('').toUpperCase(),
-//       avatarColor: "linear-gradient(135deg, #8b5cf6, #a78bfa)",
-//       lastMessage: "Grupo criado",
-//       time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-//       isGroup: true,
-//     }
-
-//     setAllConversations(prev => [newGroupConversation, ...prev])
-//     setActiveConversation(newGroupConversation)
-//     handleCancelNewGroup()
-    
-//     // Reset messages for the new group
-//     setMessages([
-//       {
-//         id: "1",
-//         text: `Grupo "${groupName}" criado com sucesso!`,
-//         sender: "Sistema",
-//         time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-//         isSent: false,
-//       }
-//     ])
-//   }
-
-//   const [messages, setMessages] = useState<Message[]>([
-//     {
-//       id: "1",
-//       text: "Olá João, temos que finalizar o relatório do projeto Alpha até sexta-feira.",
-//       sender: "Maria Costa",
-//       time: "10:30",
-//       isSent: false,
-//     },
-//     {
-//       id: "2",
-//       text: "Entendi. Qual parte cada um ficará responsável?",
-//       sender: "Você",
-//       time: "10:32",
-//       isSent: true,
-//     },
-//     {
-//       id: "3",
-//       text: "Você pode cuidar da análise de dados. Carlos ficará com a parte escrita e eu com a revisão final.",
-//       sender: "Maria Costa",
-//       time: "10:33",
-//       isSent: false,
-//     },
-//     {
-//       id: "4",
-//       text: "Precisamos também incluir os gráficos que o Pedro preparou.",
-//       sender: "Maria Costa",
-//       time: "10:34",
-//       isSent: false,
-//     },
-//     {
-//       id: "5",
-//       text: "Perfeito! Vou começar a trabalhar na análise hoje à tarde.",
-//       sender: "Você",
-//       time: "10:35",
-//       isSent: true,
-//     },
-//     {
-//       id: "6",
-//       text: "Ótimo! Lembrem-se de atualizar o progresso no Trello também.",
-//       sender: "Carlos Santos",
-//       time: "10:40",
-//       isSent: false,
-//     },
-//   ])
-
-//   const handleSendMessage = (text: string) => {
-//     const newMessage: Message = {
-//       id: Date.now().toString(),
-//       text,
-//       sender: "Você",
-//       time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-//       isSent: true,
-//     }
-//     setMessages([...messages, newMessage])
-
-//     // Simulate response
-//     setTimeout(
-//       () => {
-//         const responses = [
-//           "Ok, entendi!",
-//           "Vou verificar isso.",
-//           "Perfeito, obrigada!",
-//           "Podemos discutir isso na próxima reunião.",
-//           "Concordo com sua sugestão.",
-//         ]
-//         const randomResponse = responses[Math.floor(Math.random() * responses.length)]
-//         const replyMessage: Message = {
-//           id: (Date.now() + 1).toString(),
-//           text: randomResponse,
-//           sender: activeConversation.name,
-//           time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-//           isSent: false,
-//         }
-//         setMessages((prev) => [...prev, replyMessage])
-//       },
-//       1000 + Math.random() * 2000,
-//     )
-//   }
-
-//   return (
-//     <div className={isDarkMode ? "dark" : ""}>
-//       <div className="flex h-screen w-full overflow-hidden bg-background">
-//         <Sidebar
-//           conversations={filteredConversations}
-//           activeConversation={activeConversation}
-//           onConversationSelect={handleConversationSelect}
-//           activeTab={activeTab}
-//           onTabChange={handleTabChange}
-//           isDarkMode={isDarkMode}
-//           onThemeToggle={() => setIsDarkMode(!isDarkMode)}
-//           user={user}
-//           onProfileClick={() => setIsProfileModalOpen(true)}
-//           // Props para modo nova conversa
-//           isNewConversationMode={isNewConversationMode}
-//           onNewConversation={handleNewConversation}
-//           onCancelNewConversation={handleCancelNewConversation}
-//           contacts={availableContacts}
-//           onContactSelect={handleContactSelect}
-//           // Props para modo novo grupo
-//           isNewGroupMode={isNewGroupMode}
-//           newGroupStep={newGroupStep}
-//           selectedContacts={selectedContacts}
-//           groupMembers={groupMembers}
-//           groupName={groupName}
-//           onNewGroup={handleNewGroup}
-//           onCancelNewGroup={handleCancelNewGroup}
-//           onToggleContactSelection={handleToggleContactSelection}
-//           onNextStep={handleNextStep}
-//           onPrevStep={handlePrevStep}
-//           onRoleChange={handleRoleChange}
-//           onGroupNameChange={setGroupName}
-//           onCreateGroup={handleCreateGroup}
-//         />
-//         <ChatArea conversation={activeConversation} messages={messages} onSendMessage={handleSendMessage} />
-//         <ProfileModal
-//           isOpen={isProfileModalOpen}
-//           onClose={() => setIsProfileModalOpen(false)}
-//           user={user}
-//           onSave={setUser}
-//         />
-//       </div>
-//     </div>
-//   )
-// }
-
-
-
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useRef } from "react"
 import { Sidebar } from "@/components/sidebar"
 import { ChatArea } from "@/components/chat-area"
 import { ProfileModal } from "@/components/profile-modal"
@@ -478,18 +10,26 @@ import { apiService } from "@/services/api"
 // Suas interfaces permanecem as mesmas...
 export type UserType = "USER" | "MANAGER" | "ADMIN"
 export type UserStatus = "online" | "away" | "busy" | "offline"
+export type ConversationType = "PRIVATE" | "GROUP";
+export type ConversationStatus = "ACTIVE" | "DISABLED"
+
 
 export interface User {
-  id: string
+  id: number
   name: string
   email: string
-  type: UserType
-  status: UserStatus
-  avatar: string
+  role: UserType
+  status: string
+  clientId: string
+  clientName: string
+  lastLoginAt: string
+  createdAt: string
+  updatedAt: string
+  avatar?: string
 }
 
 export interface Conversation {
-  id: string
+  id: number
   name: string
   avatar: string
   avatarColor: string
@@ -498,25 +38,38 @@ export interface Conversation {
   unreadCount?: number
   isGroup?: boolean
   isOnline?: boolean
+  messages?: Message[]
 }
 
 export interface Message {
-  id: string
-  text: string
-  sender: string
-  time: string
-  isSent: boolean
-  senderId?: string
+  id: number 
+  conversationId: number 
+  senderId: number
+  senderName: string
+  content: string
+  status: string
+  createdAt: string
+  text?: string
+  sender?: string
+  time?: string
+  isSent?: boolean
 }
 
 export interface Contact {
-  id: string
+  id: number
   name: string
   email: string
-  avatar: string
-  avatarColor: string
-  status: UserStatus
-  type: UserType
+  role: UserType
+  status: string
+  clientId: string
+  clientName: string
+  lastLoginAt: string
+  createdAt: string
+  updatedAt: string
+  // Campos para compatibilidade com componentes existentes
+  avatar?: string
+  avatarColor?: string
+  // type?: UserType
 }
 
 export interface GroupMember extends Contact {
@@ -553,6 +106,50 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([])
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
 
+  // Usaremos uma ref para controlar quais conversas já carregaram mensagens
+  const loadedConversationsRef = useRef<Set<number>>(new Set());
+
+  // Função para ordenar mensagens por data (mais antigas primeiro - ORDEM CRESCENTE)
+  const sortMessagesByDate = (messages: Message[]): Message[] => {
+    return [...messages].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateA - dateB; // Ordem crescente: mais antigas primeiro
+    });
+  };
+
+  // Função para processar mensagens do DTO (ajustar ordem e formatar)
+  const processMessagesFromDTO = (messages: Message[]): Message[] => {
+    if (!messages || messages.length === 0) return [];
+    
+    console.log('Mensagens antes da ordenação:', messages.map(m => ({
+      id: m.id,
+      content: m.content,
+      createdAt: m.createdAt
+    })));
+    
+    // Ordena as mensagens por data (mais antigas primeiro - ORDEM CRESCENTE)
+    const sortedMessages = sortMessagesByDate(messages);
+    
+    console.log('Mensagens após ordenação:', sortedMessages.map(m => ({
+      id: m.id,
+      content: m.content,
+      createdAt: m.createdAt
+    })));
+    
+    // Adiciona campos formatados para cada mensagem
+    return sortedMessages.map(message => ({
+      ...message,
+      text: message.content,
+      sender: message.senderName,
+      time: new Date(message.createdAt).toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+      isSent: message.senderId === user?.id
+    }));
+  };
+
   // Carrega dados iniciais da API
   const loadInitialData = async () => {
     try {
@@ -567,13 +164,22 @@ export default function Home() {
       const conversationsResponse = await apiService.getConversations()
       setAllConversations(conversationsResponse.data)
 
-      // Carrega contatos
-      const contactsResponse = await apiService.getContacts()
-      setAvailableContacts(contactsResponse.data)
-
       // Define conversa ativa inicial
       if (conversationsResponse.data.length > 0) {
-        setActiveConversation(conversationsResponse.data[0])
+        const initialConversation = conversationsResponse.data[0]
+        setActiveConversation(initialConversation)
+        
+        // Se a conversa inicial já tem mensagens no DTO, usa elas
+        if (initialConversation.messages && initialConversation.messages.length > 0) {
+          console.log('Usando mensagens do DTO da conversa inicial:', initialConversation.id)
+          const processedMessages = processMessagesFromDTO(initialConversation.messages)
+          setMessages(processedMessages)
+          loadedConversationsRef.current.add(initialConversation.id);
+        } else {
+          // Caso contrário, carrega as mensagens
+          console.log('Carregando mensagens da API para conversa inicial:', initialConversation.id)
+          loadMessages(initialConversation.id)
+        }
       }
 
     } catch (err) {
@@ -593,14 +199,36 @@ export default function Home() {
   // Carrega mensagens quando a conversa ativa muda
   useEffect(() => {
     if (activeConversation) {
-      loadMessages(activeConversation.id)
+      const conversationId = activeConversation.id;
+      
+      // Verifica se esta conversa já foi carregada anteriormente
+      const hasBeenLoaded = loadedConversationsRef.current.has(conversationId);
+      
+      // Se a conversa tem mensagens do DTO e ainda não foi marcada como carregada
+      if (activeConversation.messages && activeConversation.messages.length > 0 && !hasBeenLoaded) {
+        console.log('Usando mensagens do DTO para conversa ativa:', conversationId)
+        const processedMessages = processMessagesFromDTO(activeConversation.messages)
+        setMessages(processedMessages)
+        loadedConversationsRef.current.add(conversationId);
+      } else {
+        // Para todas as outras situações, carrega as mensagens da API
+        // Isso inclui:
+        // 1. Conversas sem mensagens no DTO
+        // 2. Conversas que já foram carregadas antes (para atualizar as mensagens)
+        console.log('Carregando mensagens da API para conversa ativa:', conversationId)
+        loadMessages(conversationId)
+      }
     }
   }, [activeConversation])
 
-  const loadMessages = async (conversationId: string) => {
+  const loadMessages = async (conversationId: number) => {
     try {
       const response = await apiService.getMessages(conversationId)
-      setMessages(response.data)
+      // Processa as mensagens da API para garantir ordem e formatação consistentes
+      const processedMessages = processMessagesFromDTO(response.data)
+      setMessages(processedMessages)
+      // Marca a conversa como carregada
+      loadedConversationsRef.current.add(conversationId);
     } catch (err) {
       console.error('Erro ao carregar mensagens:', err)
       setError('Erro ao carregar mensagens.')
@@ -625,19 +253,129 @@ export default function Home() {
   }
 
   // Função para iniciar nova conversa
-  const handleNewConversation = () => {
-    setIsNewConversationMode(true)
-    setIsNewGroupMode(false)
+  const handleNewConversation = async () => {
+    try {
+      setLoading(true)
+      
+      // Verifica se temos o clientId do usuário logado
+      if (!user?.clientId) {
+        throw new Error('ClientId não disponível')
+      }
+      
+      // Carrega os contatos usando o clientId do usuário logado
+      const contactsResponse = await apiService.getContacts(user.clientId)
+      
+      // Transforma os dados da API para o formato esperado pelo componente
+      const formattedContacts: Contact[] = contactsResponse.data.map(contact => ({
+        ...contact,
+        // Gera um avatar baseado na primeira letra do nome
+        avatar: contact.avatar || contact.name.charAt(0),
+        // Gera uma cor de avatar aleatória ou usa uma padrão
+        avatarColor: contact.avatarColor || getRandomColor(),
+        // Mapeia o status se necessário
+        status: mapApiStatusToAppStatus(contact.status),
+        // Mapeia role para type se necessário
+        type: (contact.role as UserType) || 'USER'
+      }))
+      
+      setAvailableContacts(formattedContacts)
+      setIsNewConversationMode(true)
+      setIsNewGroupMode(false)
+    } catch (err) {
+      console.error('Erro ao carregar contatos:', err)
+      setError('Erro ao carregar lista de contatos.')
+    } finally {
+      setLoading(false)
+    }
   }
+
+  // Função auxiliar para gerar cor aleatória
+const getRandomColor = () => {
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+  ]
+  return colors[Math.floor(Math.random() * colors.length)]
+}
+
+// Função auxiliar para mapear status da API para o status do app
+const mapApiStatusToAppStatus = (apiStatus: string): UserStatus => {
+  const statusMap: Record<string, UserStatus> = {
+    'ACTIVE': 'online',
+    'INACTIVE': 'offline',
+    'AWAY': 'away',
+    'BUSY': 'busy'
+  }
+  return statusMap[apiStatus] || 'offline'
+}
 
   // Função para selecionar um contato e criar nova conversa
   const handleContactSelect = async (contact: Contact) => {
     try {
+      // Obter o ID do usuário atual
+      const currentUserId = user?.id;
+      
+      if (!currentUserId) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      // Criar o objeto no formato que a API espera
+      // const conversationData = {
+      //   title: `Conversa com ${contact.name}`,
+      //   type: "PRIVATE" as const,
+      //   participantIds: [contact.id]
+      // };
+
       const response = await apiService.createConversation(contact.id)
       const newConversation = response.data
 
-      setAllConversations(prev => [newConversation, ...prev])
-      setActiveConversation(newConversation)
+      // Verifica se a conversa já existe na lista
+      const existingConversationIndex = allConversations.findIndex(
+        conv => conv.id === newConversation.id
+      );
+
+      if (existingConversationIndex !== -1) {
+        // Se a conversa já existe, apenas ativa ela (não adiciona novamente)
+        console.log('Conversa já existe, ativando:', newConversation.id);
+        
+        // Atualiza a conversa existente com quaisquer novas informações (como mensagens)
+        const updatedConversations = [...allConversations];
+        updatedConversations[existingConversationIndex] = {
+          ...updatedConversations[existingConversationIndex],
+          ...newConversation // Mantém dados existentes, atualiza com novos
+        };
+        
+        setAllConversations(updatedConversations);
+        setActiveConversation(updatedConversations[existingConversationIndex]);
+        
+        // Se a nova conversa trouxe mensagens, atualiza o estado de mensagens
+        if (newConversation.messages && newConversation.messages.length > 0) {
+          console.log('Usando mensagens do DTO da conversa existente');
+          const processedMessages = processMessagesFromDTO(newConversation.messages)
+          setMessages(processedMessages);
+        }
+        
+        // Remove a conversa do conjunto de carregadas para forçar o recarregamento
+        loadedConversationsRef.current.delete(newConversation.id);
+        
+      } else {
+        // Se é uma conversa nova, adiciona no topo da lista
+        console.log('Nova conversa criada:', newConversation.id);
+        setAllConversations(prev => [newConversation, ...prev])
+        setActiveConversation(newConversation)
+
+        // Se a conversa trouxe mensagens, atualiza o estado de mensagens
+        if (newConversation.messages && newConversation.messages.length > 0) {
+          console.log('Usando mensagens do DTO da nova conversa');
+          const processedMessages = processMessagesFromDTO(newConversation.messages)
+          setMessages(processedMessages)
+          loadedConversationsRef.current.add(newConversation.id);
+        } else {
+          console.log('Nova conversa sem mensagens, limpando estado');
+          setMessages([])
+        }
+      }
+
       setIsNewConversationMode(false)
       
     } catch (err) {
@@ -652,13 +390,40 @@ export default function Home() {
   }
 
   // Funções para Novo Grupo
-  const handleNewGroup = () => {
-    setIsNewGroupMode(true)
-    setIsNewConversationMode(false)
-    setNewGroupStep(1)
-    setSelectedContacts([])
-    setGroupMembers([])
-    setGroupName("")
+  const handleNewGroup = async () => {
+    try {
+      setLoading(true)
+      
+      // Verifica se temos o clientId do usuário logado
+      if (!user?.clientId) {
+        throw new Error('ClientId não disponível')
+      }
+      
+      // Carrega os contatos usando o clientId do usuário logado
+      const contactsResponse = await apiService.getContacts(user.clientId)
+      
+      // Transforma os dados da API para o formato esperado pelo componente
+      const formattedContacts: Contact[] = contactsResponse.data.map(contact => ({
+        ...contact,
+        avatar: contact.avatar || contact.name.charAt(0),
+        avatarColor: contact.avatarColor || getRandomColor(),
+        status: mapApiStatusToAppStatus(contact.status),
+        type: (contact.role as UserType) || 'USER'
+      }))
+      
+      setAvailableContacts(formattedContacts)
+      setIsNewGroupMode(true)
+      setIsNewConversationMode(false)
+      setNewGroupStep(1)
+      setSelectedContacts([])
+      setGroupMembers([])
+      setGroupName("")
+    } catch (err) {
+      console.error('Erro ao carregar contatos:', err)
+      setError('Erro ao carregar lista de contatos.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleCancelNewGroup = () => {
@@ -695,7 +460,7 @@ export default function Home() {
     setNewGroupStep(1)
   }
 
-  const handleRoleChange = (contactId: string, newRole: "USER" | "ADMIN") => {
+  const handleRoleChange = (contactId: number, newRole: "USER" | "ADMIN") => {
     setGroupMembers(prev =>
       prev.map(member =>
         member.id === contactId ? { ...member, role: newRole } : member
@@ -708,8 +473,9 @@ export default function Home() {
 
     try {
       const groupData = {
-        name: groupName,
-        members: groupMembers.map(member => ({
+        title: groupName,
+        type: "GROUP",
+        participants: groupMembers.map(member => ({
           id: member.id,
           role: member.role
         }))
@@ -720,18 +486,19 @@ export default function Home() {
 
       setAllConversations(prev => [newGroupConversation, ...prev])
       setActiveConversation(newGroupConversation)
-      handleCancelNewGroup()
       
-      // Mensagem inicial do sistema
-      setMessages([
-        {
-          id: "system-" + Date.now(),
-          text: `Grupo "${groupName}" criado com sucesso!`,
-          sender: "Sistema",
-          time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-          isSent: false,
-        }
-      ])
+      // Se o grupo trouxe mensagens, atualiza o estado
+      if (newGroupConversation.messages && newGroupConversation.messages.length > 0) {
+        const processedMessages = processMessagesFromDTO(newGroupConversation.messages)
+        setMessages(processedMessages)
+      } else {
+        setMessages([])
+      }
+      
+      // Remove a conversa do conjunto de carregadas para forçar o recarregamento
+      loadedConversationsRef.current.delete(newGroupConversation.id);
+      
+      handleCancelNewGroup()
 
     } catch (err) {
       console.error('Erro ao criar grupo:', err)
@@ -747,14 +514,32 @@ export default function Home() {
       const response = await apiService.sendMessage(activeConversation.id, text)
       const newMessage = response.data
 
-      // Atualiza mensagens localmente
-      setMessages(prev => [...prev, newMessage])
+      // Processa a nova mensagem para garantir formatação consistente
+      const processedMessage = {
+        ...newMessage,
+        text: newMessage.content,
+        sender: newMessage.senderName,
+        time: new Date(newMessage.createdAt).toLocaleTimeString('pt-BR', {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+        isSent: newMessage.senderId === user?.id
+      };
+
+      // Atualiza mensagens localmente (adiciona ao final - ordem crescente)
+      setMessages(prev => [...prev, processedMessage])
 
       // Atualiza última mensagem na lista de conversas
       setAllConversations(prev =>
         prev.map(conv =>
           conv.id === activeConversation.id
-            ? { ...conv, lastMessage: text, time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) }
+            ? { 
+                ...conv, 
+                lastMessage: text, 
+                time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+                // Se a conversa tem mensagens no estado, atualiza também
+                messages: conv.messages ? [...conv.messages, processedMessage] : [processedMessage]
+              }
             : conv
         )
       )
@@ -774,6 +559,10 @@ export default function Home() {
       console.error('Erro ao atualizar perfil:', err)
       setError('Erro ao atualizar perfil.')
     }
+  }
+
+  const handleAdminClick = () => {
+    router.push("/admin")
   }
 
   if (loading) {
@@ -838,6 +627,7 @@ export default function Home() {
           onRoleChange={handleRoleChange}
           onGroupNameChange={setGroupName}
           onCreateGroup={handleCreateGroup}
+          onAdminClick={handleAdminClick}
         />
         
         {activeConversation ? (
@@ -845,6 +635,7 @@ export default function Home() {
             conversation={activeConversation} 
             messages={messages} 
             onSendMessage={handleSendMessage} 
+            currentUserId={user.id}
           />
         ) : (
           <div className="flex-1 flex items-center justify-center">
@@ -862,5 +653,3 @@ export default function Home() {
     </div>
   )
 }
-
-

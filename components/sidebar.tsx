@@ -1,6 +1,6 @@
 "use client"
 
-import { MessageSquare, Users, UserPlus, Search, Moon, Sun, ArrowLeft } from "lucide-react"
+import { MessageSquare, Users, UserPlus, Search, Moon, Sun, ArrowLeft, Settings  } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ConversationItem } from "@/components/conversation-item"
@@ -35,9 +35,10 @@ interface SidebarProps {
   onToggleContactSelection: (contact: Contact) => void
   onNextStep: () => void
   onPrevStep: () => void
-  onRoleChange: (contactId: string, role: "USER" | "ADMIN") => void
+  onRoleChange: (contactId: number, role: "USER" | "ADMIN") => void
   onGroupNameChange: (name: string) => void
   onCreateGroup: () => void
+  onAdminClick?: () => void
 }
 
 export function Sidebar({
@@ -70,6 +71,7 @@ export function Sidebar({
   onRoleChange,
   onGroupNameChange,
   onCreateGroup,
+  onAdminClick
 }: SidebarProps) {
   return (
     <div className="flex h-full w-[380px] flex-col border-r border-border bg-sidebar">
@@ -81,14 +83,39 @@ export function Sidebar({
           </div>
           <h1 className="text-xl font-bold text-sidebar-foreground">ConnectApp</h1>
         </div>
-        <Button
+        <div className="flex items-center gap-1">
+          {/* Botão de Admin (apenas para ADMIN) */}
+          {user?.role === "ADMIN" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onAdminClick}
+              className="text-muted-foreground hover:text-primary"
+              title="Painel de Administração"
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
+          )}
+
+          {/* Botão de Tema (existente) */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onThemeToggle}
+            className="text-muted-foreground hover:text-primary"
+          >
+            {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+        </div>
+
+        {/* <Button
           variant="ghost"
           size="icon"
           onClick={onThemeToggle}
           className="text-muted-foreground hover:text-primary"
         >
           {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </Button>
+        </Button> */}
       </div>
 
       {isNewGroupMode ? (
@@ -144,12 +171,12 @@ export function Sidebar({
                       </div>
                       <div
                         className={`h-2 w-2 rounded-full ${contact.status === "online"
-                            ? "bg-green-500"
-                            : contact.status === "away"
-                              ? "bg-yellow-500"
-                              : contact.status === "busy"
-                                ? "bg-red-500"
-                                : "bg-gray-400"
+                          ? "bg-green-500"
+                          : contact.status === "away"
+                            ? "bg-yellow-500"
+                            : contact.status === "busy"
+                              ? "bg-red-500"
+                              : "bg-gray-400"
                           }`}
                       />
                     </div>
@@ -290,12 +317,12 @@ export function Sidebar({
                 </div>
                 <div
                   className={`h-2 w-2 rounded-full ${contact.status === "online"
-                      ? "bg-green-500"
-                      : contact.status === "away"
-                        ? "bg-yellow-500"
-                        : contact.status === "busy"
-                          ? "bg-red-500"
-                          : "bg-gray-400"
+                    ? "bg-green-500"
+                    : contact.status === "away"
+                      ? "bg-yellow-500"
+                      : contact.status === "busy"
+                        ? "bg-red-500"
+                        : "bg-gray-400"
                     }`}
                 />
               </div>
@@ -310,8 +337,8 @@ export function Sidebar({
             <button
               onClick={() => onTabChange("chats")}
               className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${activeTab === "chats"
-                  ? "border-b-2 border-purple-600 text-purple-600"
-                  : "text-muted-foreground hover:text-foreground"
+                ? "border-b-2 border-purple-600 text-purple-600"
+                : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               Conversas
@@ -319,8 +346,8 @@ export function Sidebar({
             <button
               onClick={() => onTabChange("groups")}
               className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${activeTab === "groups"
-                  ? "border-b-2 border-purple-600 text-purple-600"
-                  : "text-muted-foreground hover:text-foreground"
+                ? "border-b-2 border-purple-600 text-purple-600"
+                : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               Grupos
@@ -404,12 +431,12 @@ export function Sidebar({
           <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-background">
             <div
               className={`h-2 w-2 rounded-full ${user.status === "online"
-                  ? "bg-green-500"
-                  : user.status === "away"
-                    ? "bg-yellow-500"
-                    : user.status === "busy"
-                      ? "bg-red-500"
-                      : "bg-gray-400"
+                ? "bg-green-500"
+                : user.status === "away"
+                  ? "bg-yellow-500"
+                  : user.status === "busy"
+                    ? "bg-red-500"
+                    : "bg-gray-400"
                 }`}
             />
           </div>

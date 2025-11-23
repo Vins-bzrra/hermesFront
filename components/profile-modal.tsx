@@ -123,7 +123,7 @@ export function ProfileModal({ isOpen, onClose, user, onSave }: ProfileModalProp
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Tipo:</span>
-                <span className="font-medium">{formData.type}</span>
+                <span className="font-medium">{formData.role}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Status:</span>

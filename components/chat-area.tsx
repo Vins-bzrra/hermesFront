@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import { Search, Phone, Video, MoreVertical, Smile, Paperclip, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,11 +11,33 @@ interface ChatAreaProps {
   conversation: Conversation
   messages: Message[]
   onSendMessage: (text: string) => void
+  currentUserId: number
 }
 
-export function ChatArea({ conversation, messages, onSendMessage }: ChatAreaProps) {
+export function ChatArea({ conversation, messages, onSendMessage, currentUserId }: ChatAreaProps) {
   const [messageText, setMessageText] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Transforma e ordena as mensagens corretamente
+  const transformedMessages = messages
+    .map(message => {
+      const text = message.content || message.text || ""
+      const sender = message.senderName || message.sender || "Unknown"
+      const time = new Date(message.createdAt).toLocaleTimeString([], { 
+        hour: '2-digit', minute: '2-digit' 
+      })
+      const isSent = message.senderId === currentUserId
+      
+      return {
+        ...message,
+        text,
+        sender,
+        time,
+        isSent,
+        content: text,
+        senderName: sender
+      }
+    })
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -75,12 +96,15 @@ export function ChatArea({ conversation, messages, onSendMessage }: ChatAreaProp
       {/* Messages */}
       <div className="flex-1 overflow-y-auto bg-background p-6">
         <div className="mx-auto max-w-4xl space-y-4">
-          {messages.map((message) => (
+          {transformedMessages.map((message) => (
             <div key={message.id} className={`flex ${message.isSent ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[70%] ${message.isSent ? "items-end" : "items-start"} flex flex-col gap-1`}>
                 <div
                   className={`rounded-2xl px-4 py-2.5 ${
-                    message.isSent ? "bg-purple-600 text-white" : "bg-card text-card-foreground"
+                    message.isSent 
+                      ? "bg-purple-600 text-white" 
+                      // : "bg-white text-gray-900 border border-gray-200 shadow-sm" // Mensagens recebidas com destaque
+                      : "bg-white text-gray-900 border border-gray-200 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 shadow-sm"
                   }`}
                 >
                   <p className="text-sm leading-relaxed">{message.text}</p>

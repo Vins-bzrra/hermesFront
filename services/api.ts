@@ -63,19 +63,25 @@ class ApiService {
     return this.request<Conversation>(`/conversations/${id}`);
   }
 
-  async createConversation(contactId: string) {
+  async createConversation(participantId: number) {
     return this.request<Conversation>('/conversations', {
       method: 'POST',
-      body: JSON.stringify({ contactId }),
+      body: JSON.stringify({
+        title: '', // Pode ser vazio, será preenchido pelo backend
+        type: 'PRIVATE',
+        participants: [
+          { id: participantId, role: 'USER' } // Role é ignorada em conversas privadas
+        ]
+      }),
     });
   }
 
   // Messages
-  async getMessages(conversationId: string) {
+  async getMessages(conversationId: number) {
     return this.request<Message[]>(`/conversations/${conversationId}/messages`);
   }
 
-  async sendMessage(conversationId: string, text: string) {
+  async sendMessage(conversationId: number, text: string) {
     return this.request<Message>(`/conversations/${conversationId}/messages`, {
       method: 'POST',
       body: JSON.stringify({ text }),
@@ -83,16 +89,17 @@ class ApiService {
   }
 
   // Contacts
-  async getContacts() {
-    return this.request<Contact[]>('/contacts');
+  async getContacts(clientId: string) {
+    return this.request<Contact[]>(`/users/client/${clientId}`);
   }
 
   // Groups
   async createGroup(groupData: {
-    name: string;
-    members: Array<{ id: string; role: 'USER' | 'ADMIN' }>;
+    title: string;
+    type: string;
+    participants: Array<{ id: number; role: 'USER' | 'ADMIN' }>;
   }) {
-    return this.request<Conversation>('/groups', {
+    return this.request<Conversation>('/conversations', {
       method: 'POST',
       body: JSON.stringify(groupData),
     });
