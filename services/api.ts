@@ -113,6 +113,8 @@
 // export const apiService = new ApiService();
 
 
+import { UpdateUserRequest } from "@/app/admin/users/[id]/edit/page";
+import { CreateUserRequest } from "@/app/admin/users/new/page";
 import { Contact, Conversation, Message, User } from "@/app/page";
 
 // services/api.ts
@@ -124,12 +126,13 @@ interface ApiResponse<T> {
 }
 
 // Interfaces para atualização de usuário
-interface UpdateUserRequest {
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-}
+// interface UpdateUserRequest {
+//   name: string;
+//   email: string;
+//   role: string;
+//   status: string;
+//   password: string;
+// }
 
 interface UpdatePasswordRequest {
   password: string;
@@ -158,6 +161,13 @@ class ApiService {
       };
     }
 
+    if (response.status === 201) {
+      return {
+        data: {} as T,
+        status: response.status,
+      };
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
@@ -179,6 +189,13 @@ class ApiService {
   }
 
   // Users
+  async createUser(userData: CreateUserRequest) {
+    return this.request('/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
   async getCurrentUser() {
     return this.request<User>('/users/me');
   }
@@ -196,7 +213,7 @@ class ApiService {
 
   // Admin - Update user as admin
   async updateUserAsAdmin(id: string, userData: UpdateUserRequest) {
-    return this.request(`/users/${id}`, {
+    return this.request(`/user/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
     });
